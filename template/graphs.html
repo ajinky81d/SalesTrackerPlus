@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Data Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            text-align: center;
+        }
+        h2 {
+            color: #343a40;
+        }
+        .graph-container {
+            width: 80%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        /* Back Button Styles */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+        /* Error Message Styles */
+        .error-message {
+            color: red;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <a href="#" onclick="history.back(); return false;" class="back-button">← Back</a>
+
+    <h1>Sales Data Visualization</h1>
+
+    <!-- Error Message Section -->
+    {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <div class="graph-container">
+        <h2>Total Sales: Cash vs Online</h2>
+        {{ graph1|safe }}
+    </div>
+
+    <div class="graph-container">
+        <h2>Net Revenue</h2>
+        {{ graph6|safe }}
+    </div>
+
+    <div class="graph-container">
+        <h2>Total Expense</h2>
+        {{ graph11|safe }}
+    </div>
+    <div class="graph-container">
+        <h2>Days vs Sales</h2>
+        {{ graph3|safe }}
+    </div>
+
+    <div class="graph-container">
+        <h2>Date vs Sales</h2>
+        {{ graph2|safe }}
+    </div>
+
+ 
+    <div class="graph-container">
+        <h2>Hours vs Sales</h2>
+        {{ graph4|safe }}
+    </div>
+
+    <div class="graph-container">
+        <h2>Amount Range vs Sales</h2>
+        {{ graph5|safe }}
+    </div>
+
+ 
+
+</body>
+</html>

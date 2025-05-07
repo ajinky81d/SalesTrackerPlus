@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fc;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 2rem;
+            background-color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        input[type="date"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d3e2;
+            border-radius: 0.35rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="date"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.35rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2e59d9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #17a673;
+            transform: translateY(-1px);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        #response {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f1f8e9;
+            border-left: 4px solid var(--secondary-color);
+            border-radius: 0.25rem;
+        }
+        
+        .error-message {
+            color: #e74a3b;
+            background-color: #fdf3f2;
+            padding: 1rem;
+            border-radius: 0.35rem;
+            border-left: 4px solid #e74a3b;
+            margin-top: 1.5rem;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .dashboard-section {
+            margin-bottom: 3rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        {% if edit_response %}
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="editMessage">
+  {{ edit_response }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+        <h1>Sales & Bluetooth Dashboard</h1>
+        <div class="dashboard-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Bluetooth Communication with Arduino</h2>
+                </div>
+                <div class="card-body">
+                    <form id="dateForm" action="{% url 'send-command' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="from_date">From Date:</label>
+                            <input type="date" id="from_date" name="from_date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="to_date">To Date:</label>
+                            <input type="date" id="to_date" name="to_date" required>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">Send Selected Dates</button>
+                            <button type="button" class="btn btn-secondary" id="sendToday">Send for Today's Date</button>
+                        </div>
+                    </form>
+                    <div id="response-box" class="response-box">
+                        <h3>Response from Arduino:</h3>
+                        <pre id="response">{{ response }}</pre>
+                    </div>
+                
+                  <!--  <div id="response"></div>  -->
+                    
+                </div>
+            </div>
+        </div>
+ 
+        <!-- Sales Data Section -->
+        <div class="dashboard-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Sales Data Visualization</h2>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'visualize_data' %}" class="btn btn-primary">Visualize Lifetime Data</a>
+                    
+                    <form action="{% url 'visualize_data' %}" method="get" style="margin-top: 2rem;">
+                        <div class="form-group">
+                            <label for="from_date">From Date:</label>
+                            <input type="date" id="from_date" name="from_date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="to_date">To Date:</label>
+                            <input type="date" id="to_date" name="to_date" required>
+                        </div>   
+                    
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Visualize Data</button>
+                            <button type="button" class="btn btn-secondary" onclick="visualizeToday()">Visualize Today's Data</button>
+                        </div>
+                    </form>
+                    
+                    <script>
+                        function visualizeToday() {
+                            const today = new Date().toISOString().split('T')[0];
+                            window.location.href = "{% url 'visualize_data' %}?from_date=" + today + "&to_date=" + today;
+                        }
+                    </script>
+                    
+                    {% if error %}
+                    <div class="error-message">
+                        <h3>Error in date uploading</h3>
+                        <p>{{ error }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    
+
+
+
+<!-- Manual Edit Section -->
+<div class="dashboard-section">
+    <div class="card">
+        <div class="card-header">
+            <h2>Manual Edit</h2>
+        </div>
+        <div class="card-body">
+            <form id="manualEditForm" action="/manualedit/" method="post" onsubmit="showConfirmation(event)">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="edit_date">Date:</label>
+                    <input type="date" id="edit_date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount_type">Amount Type:</label>
+                    <select id="amount_type" name="amount_type" class="form-select" required>
+                        <option value="" disabled selected>Select Type</option>
+                        <option value="Cash,">Cash</option>
+                        <option value="Online,">Online</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount:</label>
+                    <input type="number" id="amount" name="amount" step="0.01" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Edit</button>
+                </div>
+            </form>
+
+            {% if edit_response %}
+            <div id="response-box" class="response-box">
+                <h3>Manual Edit Response:</h3>
+                <pre id="response">{{ edit_response }}</pre>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<!-- About Us Section -->
+<div class="dashboard-section">
+    <div class="card">
+        <div class="card-header">
+            <h2>About Us</h2>
+        </div>
+        <div class="card-body">
+            <div style="padding: 20px;">
+                <!-- Project Name -->
+                <div style="display: flex; margin-bottom: 18px; align-items: center;">
+                    <span style="font-weight: 600; width: 140px;">Project Name</span>
+                    <span style="font-size: 1.1em;">Sales Track+</span>
+                </div>
+                
+                <!-- Project Guide -->
+                <div style="display: flex; margin-bottom: 18px; align-items: center;">
+                    <span style="font-weight: 600; width: 140px;">Project Guide</span>
+                    <span>Mrs. Aparna Shinde</span>
+                </div>
+                
+                <!-- Project Makers -->
+                <div style="display: flex; margin-bottom: 8px; align-items: flex-start;">
+                    <span style="font-weight: 600; width: 140px;">Project Makers</span>
+                    <div style="display: flex; flex-direction: column;">
+                        <span>Vedant S.B - TEETC103</span>
+                        <span>Ajinkya S.D - TEETC106</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+
+</div>
+<script>
+    function showConfirmation(event) {
+        event.preventDefault(); // prevent immediate form submission
+        alert("Manual edit submitted successfully!");
+        document.getElementById("manualEditForm").submit(); // now submit the form
+    }
+</script>
+
+
+
+
+
+
+
+    <script>
+        // Function to get today's date in YYYY-MM-DD format
+           // Function to get today's date in YYYY-MM-DD format
+    function getTodayDate() {
+        let today = new Date();
+        return today.toISOString().split('T')[0];
+    }
+
+    document.getElementById('sendToday').addEventListener('click', function () {
+        let today = getTodayDate();
+
+        // Set both dates to today
+        document.getElementById('from_date').value = today;
+        document.getElementById('to_date').value = today;
+
+        // Optional: clear any previous response
+        document.getElementById('response').innerHTML = '';
+    });
+
+      
+    </script>
+</body>
+</html>
